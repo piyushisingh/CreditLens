@@ -1,0 +1,87 @@
+{
+  "selected_model": "Logistic Regression",
+  "feature_order": {
+    "raw_features": [
+      "credit_lines_outstanding",
+      "loan_amt_outstanding",
+      "total_debt_outstanding",
+      "income",
+      "years_employed",
+      "fico_score"
+    ],
+    "derived_features": [
+      "debt_to_income",
+      "loan_to_income",
+      "debt_per_credit_line"
+    ],
+    "all_features": [
+      "credit_lines_outstanding",
+      "loan_amt_outstanding",
+      "total_debt_outstanding",
+      "income",
+      "years_employed",
+      "fico_score",
+      "debt_to_income",
+      "loan_to_income",
+      "debt_per_credit_line"
+    ]
+  },
+  "dataset_statistics": {
+    "total_samples": 10000,
+    "class_distribution": {
+      "non_default_0": 8149,
+      "default_1": 1851
+    },
+    "default_rate": 0.1851,
+    "train_samples": 8000,
+    "test_samples": 2000
+  },
+  "cv_roc_auc_scores": {
+    "Logistic Regression": {
+      "mean_roc_auc": 1.0,
+      "std_roc_auc": 0.0
+    },
+    "Decision Tree": {
+      "mean_roc_auc": 0.9941,
+      "std_roc_auc": 0.0047
+    },
+    "Random Forest": {
+      "mean_roc_auc": 0.9995,
+      "std_roc_auc": 0.0002
+    },
+    "XGBoost": {
+      "mean_roc_auc": 0.9999,
+      "std_roc_auc": 0.0
+    }
+  },
+  "test_metrics": {
+    "roc_auc": 1.0,
+    "accuracy": 0.9965,
+    "precision": 0.9814,
+    "recall": 1.0,
+    "f1_score": 0.9906,
+    "brier_score": 0.003903,
+    "confusion_matrix": [
+      [
+        1623,
+        7
+      ],
+      [
+        0,
+        370
+      ]
+    ]
+  },
+  "assumptions": {
+    "recovery_rate_baseline": 0.1,
+    "loss_given_default_baseline": 0.9,
+    "note": "Research prototype baseline modeling assumption, not regulatory certified or empirical standard."
+  },
+  "library_versions": {
+    "python": "3.14.3",
+    "scikit_learn": "1.8.0",
+    "pandas": "3.0.3",
+    "numpy": "2.4.6",
+    "xgboost": "3.2.0"
+  }
+}

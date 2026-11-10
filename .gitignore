@@ -66,6 +66,8 @@ htmlcov/
 *.onnx
 *.pt
 *.h5
+!backend/ml/artifacts/model_pipeline.joblib
+!backend/ml/artifacts/metadata.json
 !backend/ml/artifacts/.gitkeep
 
 # ==========================================
@@ -100,3 +102,4 @@ output-metadata.json
 .externalNativeBuild/
 captures/
 *.hprof
+
