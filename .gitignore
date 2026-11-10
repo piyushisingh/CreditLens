@@ -1,35 +1,102 @@
-# Gradle files
-.gradle/
-build/
-.kotlin/
-
-# Local configuration file (sdk path, etc)
-local.properties
-
-# Log/OS Files
-*.log
-
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.aab
-*.apk
-output-metadata.json
-
-# IntelliJ
-*.iml
+﻿# ==========================================
+# Operating System & IDE Files
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
 .idea/
+.vscode/
+*.iml
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
 
-# Keystore files
+# ==========================================
+# Python & Virtual Environments
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# ==========================================
+# Datasets & Data Files
+# Raw datasets are excluded from Git.
+# Anonymised test fixtures in designated test directories are permitted.
+# ==========================================
+*.csv
+*.tsv
+*.parquet
+*.sqlite3
+!tests/fixtures/*.csv
+!backend/tests/fixtures/*.csv
+
+# ==========================================
+# Machine Learning Model Artifacts
+# ==========================================
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+*.pt
+*.h5
+!backend/ml/artifacts/.gitkeep
+
+# ==========================================
+# Secrets, Keys & Credentials
+# ==========================================
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+keystore.properties
 *.jks
 *.keystore
-
-# Google Services (e.g. APIs or Firebase)
 google-services.json
 
-# Android Profiling
+# ==========================================
+# Android & Gradle Build Artifacts
+# ==========================================
+.gradle/
+build/
+app/build/
+android/*/build/
+android/build/
+android/.gradle/
+.kotlin/
+local.properties
+*.apk
+*.aab
+*.ap_
+output-metadata.json
+.cxx/
+.externalNativeBuild/
+captures/
 *.hprof
