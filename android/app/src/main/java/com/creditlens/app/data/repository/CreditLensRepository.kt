@@ -1,5 +1,6 @@
-﻿package com.creditlens.app.data.repository
+package com.creditlens.app.data.repository
 
+import android.content.Context
 import com.creditlens.app.data.api.ApiClient
 import com.creditlens.app.data.local.AssessmentDao
 import com.creditlens.app.data.local.AssessmentEntity
@@ -10,8 +11,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class CreditLensRepository(
-    private val assessmentDao: AssessmentDao
+    private val assessmentDao: AssessmentDao,
+    context: Context? = null
 ) {
+    private val prefs = context?.getSharedPreferences("creditlens_config", Context.MODE_PRIVATE)
+
+    init {
+        val savedUrl = prefs?.getString("base_url", ApiClient.DEFAULT_BASE_URL) ?: ApiClient.DEFAULT_BASE_URL
+        ApiClient.setBaseUrl(savedUrl)
+    }
+
     val allAssessments: Flow<List<AssessmentEntity>> = assessmentDao.getAllAssessments()
     val recentAssessments: Flow<List<AssessmentEntity>> = assessmentDao.getRecentAssessments(3)
     val totalCount: Flow<Int> = assessmentDao.getTotalCount()
@@ -21,6 +30,7 @@ class CreditLensRepository(
 
     fun setBaseUrl(url: String) {
         ApiClient.setBaseUrl(url)
+        prefs?.edit()?.putString("base_url", ApiClient.getBaseUrl())?.apply()
     }
 
     suspend fun checkHealth(): Result<HealthResponseDto> = withContext(Dispatchers.IO) {
@@ -59,6 +69,10 @@ class CreditLensRepository(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    suspend fun deleteAssessment(assessment: AssessmentEntity) = withContext(Dispatchers.IO) {
+        assessmentDao.deleteAssessment(assessment)
     }
 
     suspend fun clearHistory() = withContext(Dispatchers.IO) {

@@ -296,7 +296,10 @@ fun HistoryScreen(
                 contentPadding = PaddingValues(bottom = 24.dp)
             ) {
                 items(filteredAndSortedList, key = { it.id }) { assessment ->
-                    AssessmentSummaryCard(assessment)
+                    AssessmentSummaryCard(
+                        assessment = assessment,
+                        onDelete = { viewModel.deleteAssessment(assessment) }
+                    )
                 }
             }
         }

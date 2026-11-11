@@ -1,5 +1,6 @@
-﻿package com.creditlens.app.data.api
+package com.creditlens.app.data.api
 
+import com.creditlens.app.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -25,7 +26,11 @@ object ApiClient {
     fun getService(): CreditLensApiService {
         return serviceInstance ?: synchronized(this) {
             val logging = HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level = if (BuildConfig.DEBUG) {
+                    HttpLoggingInterceptor.Level.BODY
+                } else {
+                    HttpLoggingInterceptor.Level.BASIC
+                }
             }
 
             val okHttpClient = OkHttpClient.Builder()

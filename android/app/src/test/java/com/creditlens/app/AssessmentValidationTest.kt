@@ -1,4 +1,4 @@
-﻿package com.creditlens.app
+package com.creditlens.app
 
 import com.creditlens.app.data.local.AssessmentEntity
 import com.creditlens.app.data.model.DerivedRatiosDto
@@ -99,5 +99,78 @@ class AssessmentValidationTest {
 
         val invalidHighFico = 900
         assertFalse(invalidHighFico in 300..850)
+    }
+
+    @Test
+    fun testKpiMetricAggregations() {
+        val list = listOf(
+            AssessmentEntity(
+                id = 1, creditLines = 1, loanAmount = 1000.0, totalDebt = 2000.0,
+                income = 50000.0, yearsEmployed = 3.0, ficoScore = 750, recoveryRate = 0.10,
+                defaultPrediction = 0, probabilityOfDefault = 0.10, lossGivenDefault = 0.90,
+                exposureAtDefault = 1000.0, expectedLoss = 90.0, debtToIncome = 0.04,
+                loanToIncome = 0.02, debtPerCreditLine = 1000.0
+            ),
+            AssessmentEntity(
+                id = 2, creditLines = 4, loanAmount = 8000.0, totalDebt = 35000.0,
+                income = 30000.0, yearsEmployed = 1.0, ficoScore = 580, recoveryRate = 0.10,
+                defaultPrediction = 1, probabilityOfDefault = 0.80, lossGivenDefault = 0.90,
+                exposureAtDefault = 8000.0, expectedLoss = 5760.0, debtToIncome = 1.16,
+                loanToIncome = 0.27, debtPerCreditLine = 7000.0
+            )
+        )
+
+        val total = list.size
+        val defaults = list.count { it.defaultPrediction == 1 }
+        val lowRisk = total - defaults
+        val avgPd = list.map { it.probabilityOfDefault }.average()
+        val totalEcl = list.sumOf { it.expectedLoss }
+
+        assertEquals(2, total)
+        assertEquals(1, defaults)
+        assertEquals(1, lowRisk)
+        assertEquals(0.45, avgPd, 0.001)
+        assertEquals(5850.0, totalEcl, 0.01)
+    }
+
+    @Test
+    fun testBaseUrlSanitization() {
+        com.creditlens.app.data.api.ApiClient.setBaseUrl("http://192.168.1.10:8000")
+        assertEquals("http://192.168.1.10:8000/", com.creditlens.app.data.api.ApiClient.getBaseUrl())
+
+        com.creditlens.app.data.api.ApiClient.setBaseUrl("http://10.0.2.2:8000/")
+        assertEquals("http://10.0.2.2:8000/", com.creditlens.app.data.api.ApiClient.getBaseUrl())
+    }
+
+    @Test
+    fun testHistorySortingLogic() {
+        val item1 = AssessmentEntity(
+            id = 1, timestamp = 1000L, creditLines = 1, loanAmount = 1000.0, totalDebt = 2000.0,
+            income = 50000.0, yearsEmployed = 3.0, ficoScore = 750, recoveryRate = 0.10,
+            defaultPrediction = 0, probabilityOfDefault = 0.10, lossGivenDefault = 0.90,
+            exposureAtDefault = 1000.0, expectedLoss = 90.0, debtToIncome = 0.04,
+            loanToIncome = 0.02, debtPerCreditLine = 1000.0
+        )
+        val item2 = AssessmentEntity(
+            id = 2, timestamp = 2000L, creditLines = 4, loanAmount = 8000.0, totalDebt = 35000.0,
+            income = 30000.0, yearsEmployed = 1.0, ficoScore = 580, recoveryRate = 0.10,
+            defaultPrediction = 1, probabilityOfDefault = 0.80, lossGivenDefault = 0.90,
+            exposureAtDefault = 8000.0, expectedLoss = 5760.0, debtToIncome = 1.16,
+            loanToIncome = 0.27, debtPerCreditLine = 7000.0
+        )
+
+        val list = listOf(item1, item2)
+
+        val byNewest = list.sortedByDescending { it.timestamp }
+        assertEquals(2, byNewest.first().id)
+
+        val byOldest = list.sortedBy { it.timestamp }
+        assertEquals(1, byOldest.first().id)
+
+        val byHighestLoss = list.sortedByDescending { it.expectedLoss }
+        assertEquals(5760.0, byHighestLoss.first().expectedLoss, 0.01)
+
+        val byHighestPd = list.sortedByDescending { it.probabilityOfDefault }
+        assertEquals(0.80, byHighestPd.first().probabilityOfDefault, 0.01)
     }
 }

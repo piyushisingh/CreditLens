@@ -204,6 +204,12 @@ class HistoryViewModel(
     val allAssessments: StateFlow<List<AssessmentEntity>> = repository.allAssessments
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    fun deleteAssessment(assessment: AssessmentEntity) {
+        viewModelScope.launch {
+            repository.deleteAssessment(assessment)
+        }
+    }
+
     fun clearAll() {
         viewModelScope.launch {
             repository.clearHistory()

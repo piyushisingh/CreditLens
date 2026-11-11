@@ -204,7 +204,10 @@ fun DashboardScreen(
 }
 
 @Composable
-fun AssessmentSummaryCard(assessment: AssessmentEntity) {
+fun AssessmentSummaryCard(
+    assessment: AssessmentEntity,
+    onDelete: (() -> Unit)? = null
+) {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale.US)
     val percentFormat = NumberFormat.getPercentInstance(Locale.US).apply { minimumFractionDigits = 2 }
     val dateFormat = SimpleDateFormat("MMM d, yyyy · HH:mm", Locale.getDefault())
@@ -226,7 +229,20 @@ fun AssessmentSummaryCard(assessment: AssessmentEntity) {
                     style = MaterialTheme.typography.labelSmall,
                     color = TextMuted
                 )
-                RiskBadge(isDefault = assessment.defaultPrediction == 1)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RiskBadge(isDefault = assessment.defaultPrediction == 1)
+                    if (onDelete != null) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Delete record",
+                                tint = SecondaryText,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
