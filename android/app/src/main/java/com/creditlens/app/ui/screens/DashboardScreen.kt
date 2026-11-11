@@ -1,12 +1,12 @@
 package com.creditlens.app.ui.screens
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -29,7 +29,8 @@ import java.util.*
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     onNavigateToNewAssessment: () -> Unit,
-    onNavigateToHistory: () -> Unit
+    onNavigateToHistory: () -> Unit,
+    onNavigateToModelInfo: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale.US)
@@ -39,117 +40,120 @@ fun DashboardScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp),
+        contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // App Header
+        // Heading & Overview Description
         item {
             Column {
                 Text(
-                    text = "CreditLens",
+                    text = "Credit Risk Overview",
                     style = MaterialTheme.typography.headlineLarge,
-                    color = TextPrimary
+                    color = PrimaryText
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Intelligent Credit Risk & Expected Loss Engine",
+                    text = "Intelligent credit risk assessment and expected credit loss (ECL) calculation powered by machine learning.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = SecondaryText
                 )
             }
         }
 
-        // Backend Status Banner
+        // Actions: New Assessment, View History, Model Info
         item {
-            BackendStatusBanner(
-                isOnline = state.isBackendOnline,
-                modelType = state.modelType,
-                onRefresh = { viewModel.checkHealth() }
-            )
-        }
-
-        // Metrics Grid
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                MetricCard(
-                    title = "Total Evaluated",
-                    value = "${state.totalAssessments}",
-                    subtitle = "All-time local records",
-                    icon = Icons.Default.Analytics,
-                    accentColor = PrimaryBlue,
-                    modifier = Modifier.weight(1f)
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                PrimaryButton(
+                    text = "New Assessment",
+                    onClick = onNavigateToNewAssessment,
+                    icon = Icons.Default.Calculate
                 )
-                val defaultRate = if (state.totalAssessments > 0) {
-                    state.defaultAssessments.toDouble() / state.totalAssessments.toDouble()
-                } else 0.0
-
-                MetricCard(
-                    title = "Default Ratio",
-                    value = percentFormat.format(defaultRate),
-                    subtitle = "${state.defaultAssessments} flagged high risk",
-                    icon = Icons.Default.Warning,
-                    accentColor = if (state.defaultAssessments > 0) RiskHighRed else RiskLowGreen,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        // Action CTA Banner
-        item {
-            Card(
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = PrimaryBlueVariant),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onNavigateToNewAssessment() }
-            ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(18.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "New Credit Risk Assessment",
-                            style = MaterialTheme.typography.titleLarge.copy(fontSize = 17.sp),
-                            color = TextPrimary
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Evaluate borrower probability of default & expected loss",
-                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                            color = TextPrimary.copy(alpha = 0.8f)
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Evaluate",
-                        tint = TextPrimary,
-                        modifier = Modifier.size(24.dp)
+                    SecondaryButton(
+                        text = "View History",
+                        onClick = onNavigateToHistory,
+                        icon = Icons.Default.History,
+                        modifier = Modifier.weight(1f)
+                    )
+                    SecondaryButton(
+                        text = "Model Info",
+                        onClick = onNavigateToModelInfo,
+                        icon = Icons.Default.Analytics,
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
         }
 
-        // Recent Activity Header
+        // Vertically Stacked KPI Cards
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                MetricCard(
+                    title = "Total Assessments",
+                    value = "${state.totalAssessments}",
+                    subtitle = "All-time local records",
+                    icon = Icons.Default.Assessment,
+                    accentColor = PrimaryBlue
+                )
+
+                MetricCard(
+                    title = "High-Risk Cases",
+                    value = "${state.defaultAssessments}",
+                    subtitle = "Flagged default probability > 50%",
+                    icon = Icons.Default.Warning,
+                    accentColor = StatusRed
+                )
+
+                MetricCard(
+                    title = "Low-Risk Cases",
+                    value = "${state.lowRiskAssessments}",
+                    subtitle = "Standard borrower credit profile",
+                    icon = Icons.Default.CheckCircle,
+                    accentColor = SuccessGreen
+                )
+
+                MetricCard(
+                    title = "Average Probability of Default",
+                    value = percentFormat.format(state.averageProbabilityOfDefault),
+                    subtitle = "Mean PD across portfolio records",
+                    icon = Icons.AutoMirrored.Filled.TrendingUp,
+                    accentColor = PrimaryBlue
+                )
+
+                MetricCard(
+                    title = "Total Expected Loss",
+                    value = currencyFormat.format(state.totalExpectedLoss),
+                    subtitle = "Cumulative ECL portfolio exposure",
+                    icon = Icons.Default.AttachMoney,
+                    accentColor = WarningAmber
+                )
+            }
+        }
+
+        // Recent Assessments Header
         item {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Recent Assessments",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
+                    color = PrimaryText
                 )
                 if (state.totalAssessments > 3) {
                     TextButton(onClick = onNavigateToHistory) {
-                        Text("View all (${state.totalAssessments})", color = PrimaryBlue)
+                        Text(
+                            text = "View all (${state.totalAssessments})",
+                            color = PrimaryBlue,
+                            style = MaterialTheme.typography.labelMedium
+                        )
                     }
                 }
             }
@@ -159,9 +163,9 @@ fun DashboardScreen(
         if (state.recentAssessments.isEmpty()) {
             item {
                 Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardDark),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardBackground),
+                    border = BorderStroke(1.dp, BorderColor),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
@@ -171,7 +175,7 @@ fun DashboardScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Assessment,
+                            imageVector = Icons.Default.History,
                             contentDescription = null,
                             tint = TextMuted,
                             modifier = Modifier.size(36.dp)
@@ -180,10 +184,11 @@ fun DashboardScreen(
                         Text(
                             text = "No assessments recorded yet",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = TextSecondary
+                            color = SecondaryText
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Click 'New Credit Risk Assessment' above to begin.",
+                            text = "Tap 'New Assessment' above to perform borrower risk evaluation.",
                             style = MaterialTheme.typography.labelSmall,
                             color = TextMuted
                         )
@@ -205,12 +210,12 @@ fun AssessmentSummaryCard(assessment: AssessmentEntity) {
     val dateFormat = SimpleDateFormat("MMM d, yyyy · HH:mm", Locale.getDefault())
 
     Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark),
-        border = androidx.compose.foundation.BorderStroke(1.dp, CardBorder),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        border = BorderStroke(1.dp, BorderColor),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -224,57 +229,64 @@ fun AssessmentSummaryCard(assessment: AssessmentEntity) {
                 RiskBadge(isDefault = assessment.defaultPrediction == 1)
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Loan Amount", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Text("Loan Amount", style = MaterialTheme.typography.labelSmall, color = SecondaryText)
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         currencyFormat.format(assessment.loanAmount),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = TextPrimary
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
+                        color = PrimaryText
                     )
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("FICO Score", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Text("FICO Score", style = MaterialTheme.typography.labelSmall, color = SecondaryText)
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         "${assessment.ficoScore}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = TextPrimary
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
+                        color = PrimaryText
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Prob. of Default", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Text("Prob. of Default", style = MaterialTheme.typography.labelSmall, color = SecondaryText)
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         percentFormat.format(assessment.probabilityOfDefault),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = if (assessment.defaultPrediction == 1) RiskHighRed else RiskLowGreen
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = if (assessment.defaultPrediction == 1) StatusRed else SuccessGreen
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            HorizontalDivider(color = CardBorder.copy(alpha = 0.5f))
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            HorizontalDivider(color = BorderColor)
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     "Expected Credit Loss (ECL):",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                    color = TextSecondary
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                    color = SecondaryText
                 )
                 Text(
                     currencyFormat.format(assessment.expectedLoss),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = PrimaryText
                     )
                 )
             }

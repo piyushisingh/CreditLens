@@ -1,4 +1,4 @@
-﻿package com.creditlens.app.ui.navigation
+package com.creditlens.app.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,10 +13,20 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object About : Screen("about", "About", Icons.Default.Info)
 }
 
+// Fixed four-item bottom navigation
 val bottomNavScreens = listOf(
     Screen.Dashboard,
     Screen.NewAssessment,
     Screen.History,
+    Screen.ModelInfo
+)
+
+// Complete navigation drawer items
+val drawerScreens = listOf(
+    Screen.Dashboard,
+    Screen.NewAssessment,
+    Screen.History,
     Screen.ModelInfo,
-    Screen.Settings
+    Screen.Settings,
+    Screen.About
 )

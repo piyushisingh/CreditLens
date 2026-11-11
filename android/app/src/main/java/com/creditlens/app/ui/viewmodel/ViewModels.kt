@@ -1,4 +1,4 @@
-﻿package com.creditlens.app.ui.viewmodel
+package com.creditlens.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +19,9 @@ data class DashboardUiState(
     val isCheckingHealth: Boolean = false,
     val totalAssessments: Int = 0,
     val defaultAssessments: Int = 0,
+    val lowRiskAssessments: Int = 0,
+    val averageProbabilityOfDefault: Double = 0.0,
+    val totalExpectedLoss: Double = 0.0,
     val recentAssessments: List<AssessmentEntity> = emptyList()
 )
 
@@ -36,17 +39,21 @@ class DashboardViewModel(
 
     private fun observeDatabase() {
         viewModelScope.launch {
-            combine(
-                repository.totalCount,
-                repository.defaultCount,
-                repository.recentAssessments
-            ) { total, defaults, recent ->
-                Triple(total, defaults, recent)
-            }.collect { (total, defaults, recent) ->
+            repository.allAssessments.collect { all ->
+                val total = all.size
+                val defaults = all.count { it.defaultPrediction == 1 }
+                val lowRisk = total - defaults
+                val avgPd = if (total > 0) all.map { it.probabilityOfDefault }.average() else 0.0
+                val totalEcl = all.sumOf { it.expectedLoss }
+                val recent = all.take(5)
+
                 _uiState.update {
                     it.copy(
                         totalAssessments = total,
                         defaultAssessments = defaults,
+                        lowRiskAssessments = lowRisk,
+                        averageProbabilityOfDefault = avgPd,
+                        totalExpectedLoss = totalEcl,
                         recentAssessments = recent
                     )
                 }

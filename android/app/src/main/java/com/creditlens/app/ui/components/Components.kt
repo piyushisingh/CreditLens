@@ -1,4 +1,4 @@
-﻿package com.creditlens.app.ui.components
+package com.creditlens.app.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,10 +32,10 @@ fun MetricCard(
     accentColor: Color = PrimaryBlue
 ) {
     Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark),
-        border = BorderStroke(1.dp, CardBorder)
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        border = BorderStroke(1.dp, BorderColor)
     ) {
         Column(
             modifier = Modifier
@@ -49,23 +49,33 @@ fun MetricCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    style = MaterialTheme.typography.labelMedium,
+                    color = SecondaryText
                 )
                 if (icon != null) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = accentColor,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(accentColor.copy(alpha = 0.12f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = accentColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = TextPrimary
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = PrimaryText
             )
             if (subtitle != null) {
                 Spacer(modifier = Modifier.height(4.dp))
@@ -84,33 +94,33 @@ fun RiskBadge(
     isDefault: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val bgColor = if (isDefault) RiskHighRedBg else RiskLowGreenBg
-    val textColor = if (isDefault) RiskHighRed else RiskLowGreen
+    val bgColor = if (isDefault) StatusRedBg else SuccessGreenBg
+    val textColor = if (isDefault) StatusRed else SuccessGreen
     val label = if (isDefault) "DEFAULT RISK" else "NON-DEFAULT (LOW RISK)"
     val icon = if (isDefault) Icons.Default.Error else Icons.Default.CheckCircle
 
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(8.dp),
         color = bgColor,
-        border = BorderStroke(1.dp, textColor.copy(alpha = 0.5f))
+        border = BorderStroke(1.dp, textColor.copy(alpha = 0.4f))
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = textColor,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(14.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = label,
                 color = textColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
@@ -125,9 +135,9 @@ fun BackendStatusBanner(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        color = if (isOnline) Color(0x1A10B981) else Color(0x1AEF4444),
-        border = BorderStroke(1.dp, if (isOnline) RiskLowGreen.copy(alpha = 0.4f) else RiskHighRed.copy(alpha = 0.4f))
+        shape = RoundedCornerShape(14.dp),
+        color = SecondarySurface,
+        border = BorderStroke(1.dp, BorderColor)
     ) {
         Row(
             modifier = Modifier
@@ -139,20 +149,23 @@ fun BackendStatusBanner(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(10.dp)
-                        .background(if (isOnline) RiskLowGreen else RiskHighRed, CircleShape)
+                        .size(9.dp)
+                        .background(if (isOnline) SuccessGreen else StatusRed, CircleShape)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
                         text = if (isOnline) "Backend Online" else "Backend Unavailable",
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                        color = TextPrimary
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = PrimaryText
                     )
                     Text(
                         text = if (isOnline) "Model: ${modelType ?: "Active"}" else "Check http://10.0.2.2:8000",
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                        color = TextSecondary
+                        color = SecondaryText
                     )
                 }
             }
@@ -160,8 +173,8 @@ fun BackendStatusBanner(
                 Icon(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = "Refresh status",
-                    tint = TextSecondary,
-                    modifier = Modifier.size(18.dp)
+                    tint = SecondaryText,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
@@ -184,45 +197,136 @@ fun FormInputField(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 13.sp),
-            color = TextPrimary
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
+            ),
+            color = PrimaryText
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder, color = TextMuted) },
-            prefix = prefix?.let { { Text(it, color = PrimaryBlue, fontWeight = FontWeight.Bold) } },
-            suffix = suffix?.let { { Text(it, color = TextSecondary) } },
+            placeholder = { Text(placeholder, color = TextMuted, fontSize = 14.sp) },
+            prefix = prefix?.let { { Text(it, color = PrimaryBlue, fontWeight = FontWeight.SemiBold) } },
+            suffix = suffix?.let { { Text(it, color = SecondaryText, fontSize = 13.sp) } },
             isError = errorText != null,
             keyboardOptions = keyboardOptions,
-            shape = RoundedCornerShape(10.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = CardDark,
-                unfocusedContainerColor = CardDark,
+                focusedContainerColor = CardBackground,
+                unfocusedContainerColor = CardBackground,
                 focusedBorderColor = PrimaryBlue,
-                unfocusedBorderColor = CardBorder,
-                errorBorderColor = RiskHighRed,
-                focusedTextColor = TextPrimary,
-                unfocusedTextColor = TextPrimary
+                unfocusedBorderColor = BorderColor,
+                errorBorderColor = StatusRed,
+                focusedTextColor = PrimaryText,
+                unfocusedTextColor = PrimaryText
             ),
             singleLine = true
         )
         if (errorText != null) {
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = errorText,
                 style = MaterialTheme.typography.labelSmall,
-                color = RiskHighRed
+                color = StatusRed
             )
         } else if (helperText != null) {
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = helperText,
                 style = MaterialTheme.typography.labelSmall,
-                color = TextMuted
+                color = SecondaryText
             )
         }
+    }
+}
+
+@Composable
+fun PrimaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    enabled: Boolean = true,
+    isLoading: Boolean = false
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = PrimaryBlue,
+            contentColor = PrimaryText,
+            disabledContainerColor = PrimaryBlue.copy(alpha = 0.5f)
+        ),
+        enabled = enabled && !isLoading
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                color = PrimaryText,
+                modifier = Modifier.size(20.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun SecondaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    enabled: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .height(48.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = SecondarySurface,
+            contentColor = PrimaryText
+        ),
+        border = BorderStroke(1.dp, BorderColor),
+        enabled = enabled
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = SecondaryText,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            ),
+            color = PrimaryText
+        )
     }
 }

@@ -52,25 +52,26 @@ fun NewAssessmentScreen(
         Column {
             Text(
                 text = "Loan Risk Assessment",
-                style = MaterialTheme.typography.headlineMedium,
-                color = TextPrimary
+                style = MaterialTheme.typography.headlineLarge,
+                color = PrimaryText
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Enter borrower characteristics to predict default probability and expected credit loss.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary
+                color = SecondaryText
             )
         }
 
         // Form Card
         Card(
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = CardDark),
-            border = BorderStroke(1.dp, CardBorder),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = CardBackground),
+            border = BorderStroke(1.dp, BorderColor),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Text(
@@ -149,7 +150,7 @@ fun NewAssessmentScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
 
-                // 7. Recovery Rate assumption
+                // 7. Recovery Rate parameter
                 FormInputField(
                     label = "Assumed Recovery Rate (%)",
                     value = recoveryRate,
@@ -161,34 +162,15 @@ fun NewAssessmentScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Submit Button
-                Button(
+                PrimaryButton(
+                    text = "Evaluate Credit Risk",
                     onClick = { viewModel.evaluate() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
-                    enabled = resultState !is AssessmentResultState.Loading
-                ) {
-                    if (resultState is AssessmentResultState.Loading) {
-                        CircularProgressIndicator(
-                            color = TextPrimary,
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Icon(imageVector = Icons.Default.Calculate, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Evaluate Credit Risk",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+                    icon = Icons.Default.Calculate,
+                    isLoading = resultState is AssessmentResultState.Loading
+                )
             }
         }
 
@@ -196,9 +178,9 @@ fun NewAssessmentScreen(
         when (val res = resultState) {
             is AssessmentResultState.Error -> {
                 Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = RiskHighRedBg),
-                    border = BorderStroke(1.dp, RiskHighRed.copy(alpha = 0.5f)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = StatusRedBg),
+                    border = BorderStroke(1.dp, StatusRed.copy(alpha = 0.5f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -208,7 +190,7 @@ fun NewAssessmentScreen(
                         Icon(
                             imageVector = Icons.Default.ErrorOutline,
                             contentDescription = null,
-                            tint = RiskHighRed,
+                            tint = StatusRed,
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -216,12 +198,13 @@ fun NewAssessmentScreen(
                             Text(
                                 text = "Evaluation Failed",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = RiskHighRed
+                                color = StatusRed
                             )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = res.message,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = TextPrimary
+                                color = PrimaryText
                             )
                         }
                     }
@@ -247,8 +230,8 @@ fun AssessmentResultCard(
     val percentFormat = NumberFormat.getPercentInstance(Locale.US).apply { minimumFractionDigits = 2 }
 
     Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CardDark),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
         border = BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.5f)),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -264,37 +247,39 @@ fun AssessmentResultCard(
                 Text(
                     text = "Assessment Results",
                     style = MaterialTheme.typography.titleLarge,
-                    color = TextPrimary
+                    color = PrimaryText
                 )
                 RiskBadge(isDefault = assessment.defaultPrediction == 1)
             }
 
-            HorizontalDivider(color = CardBorder)
+            HorizontalDivider(color = BorderColor)
 
             // Primary Highlight: Expected Credit Loss
             Card(
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = BackgroundDark),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = SecondarySurface),
+                border = BorderStroke(1.dp, BorderColor),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.padding(14.dp),
+                    modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = "EXPECTED CREDIT LOSS (ECL)",
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary
+                        color = SecondaryText
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = currencyFormat.format(assessment.expectedLoss),
                         style = MaterialTheme.typography.headlineLarge.copy(
-                            fontSize = 32.sp,
+                            fontSize = 30.sp,
                             fontWeight = FontWeight.Bold
                         ),
-                        color = if (assessment.defaultPrediction == 1) RiskHighRed else RiskLowGreen
+                        color = if (assessment.defaultPrediction == 1) StatusRed else SuccessGreen
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "ECL = PD × LGD × EAD",
                         style = MaterialTheme.typography.labelSmall,
@@ -312,19 +297,19 @@ fun AssessmentResultCard(
                     title = "Prob. of Default (PD)",
                     value = percentFormat.format(assessment.probabilityOfDefault),
                     modifier = Modifier.weight(1f),
-                    color = if (assessment.defaultPrediction == 1) RiskHighRed else RiskLowGreen
+                    color = if (assessment.defaultPrediction == 1) StatusRed else SuccessGreen
                 )
                 FactorCard(
-                    title = "Loss Given Default (LGD)",
+                    title = "Loss Given Default",
                     value = percentFormat.format(assessment.lossGivenDefault),
                     modifier = Modifier.weight(1f),
-                    color = TextPrimary
+                    color = PrimaryText
                 )
                 FactorCard(
                     title = "Exposure (EAD)",
                     value = currencyFormat.format(assessment.exposureAtDefault),
                     modifier = Modifier.weight(1f),
-                    color = TextPrimary
+                    color = PrimaryText
                 )
             }
 
@@ -332,7 +317,7 @@ fun AssessmentResultCard(
             Text(
                 text = "Engineered Financial Ratios",
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
-                color = TextSecondary
+                color = SecondaryText
             )
 
             Row(
@@ -358,19 +343,17 @@ fun AssessmentResultCard(
 
             // Prototype Disclaimer
             Text(
-                text = "ℹ️ Assessment automatically saved to local Room history. Modeling results are for research and prototyping purposes.",
+                text = "ℹ️ Assessment automatically saved to local Room history. Modeling results are for decision support and prototyping purposes.",
                 style = MaterialTheme.typography.labelSmall,
                 color = TextMuted
             )
 
-            Button(
+            SecondaryButton(
+                text = "Perform Another Assessment",
                 onClick = onReset,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = PrimaryBlue),
-                border = BorderStroke(1.dp, CardBorder)
-            ) {
-                Text("Start Another Assessment")
-            }
+                icon = Icons.Default.Refresh,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
@@ -380,18 +363,33 @@ fun FactorCard(
     title: String,
     value: String,
     modifier: Modifier = Modifier,
-    color: androidx.compose.ui.graphics.Color
+    color: androidx.compose.ui.graphics.Color = PrimaryText
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
-        color = BackgroundDark,
-        border = BorderStroke(1.dp, CardBorder)
+    Card(
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = SecondarySurface),
+        border = BorderStroke(1.dp, BorderColor),
+        modifier = modifier
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            Text(title, style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1)
+        Column(
+            modifier = Modifier.padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                color = SecondaryText,
+                maxLines = 1
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(value, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = color)
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = color
+            )
         }
     }
 }
@@ -402,16 +400,31 @@ fun RatioCard(
     value: String,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
-        color = BackgroundDark,
-        border = BorderStroke(1.dp, CardBorder)
+    Card(
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = SecondarySurface),
+        border = BorderStroke(1.dp, BorderColor),
+        modifier = modifier
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            Text(title, style = MaterialTheme.typography.labelSmall, color = TextMuted, maxLines = 1)
+        Column(
+            modifier = Modifier.padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                color = SecondaryText,
+                maxLines = 1
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(value, style = MaterialTheme.typography.titleMedium, color = TextPrimary)
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = PrimaryText
+            )
         }
     }
 }
